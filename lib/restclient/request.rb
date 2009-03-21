@@ -32,6 +32,7 @@ module RestClient
 			@ssl_client_cert = args[:ssl_client_cert] || nil
 			@ssl_client_key  = args[:ssl_client_key] || nil
 			@tf = nil # If you are a raw request, this is your tempfile
+			@auto_redirect = args.key?(:auto_redirect) ? args[:auto_redirect] : true
 		end
 
 		def execute
@@ -176,7 +177,11 @@ module RestClient
 					url = uri.to_s
 				end
 
-				raise Redirect, url
+				if @auto_redirect
+					raise Redirect, url
+				else
+					url
+				end
 			elsif res.code == "304"
 				raise NotModified, res
 			elsif res.code == "401"
